@@ -1,0 +1,5 @@
+<application>
+  <component name="PathMacrosImpl">
+    <macro name="Tesseract" value="G:/DnDMapper/TesseractLib" />
+  </component>
+</application>
