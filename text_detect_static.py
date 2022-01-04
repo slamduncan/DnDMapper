@@ -4,14 +4,15 @@ import numpy as np
 import argparse
 import time
 import cv2
+from pytesseract import pytesseract
 
-CONFIDENCE = 0.5
+CONFIDENCE = 0.0001
 
 # The EAST text requires that your input image dimensions be multiples of 32, so if you choose to adjust your
 # --width  and --height  values, make sure they are multiples of 32!
 
 # load the input image and grab the image dimensions
-image = cv2.imread("images/Message.jpg")
+image = cv2.imread("DnDMap.jpg")
 orig = image.copy()
 (H, W) = image.shape[:2]
 # set the new width and height and then determine the ratio in change
@@ -94,6 +95,7 @@ for y in range(0, numRows):  # TODO: look at using Cython to optimize for loops?
 # boxes
 boxes = non_max_suppression(np.array(rects), probs=confidences)  # TODO: Updated this with the mod from CV itself?
 # loop over the bounding boxes
+text_imgs = []
 for (startX, startY, endX, endY) in boxes:
     # scale the bounding box coordinates based on the respective
     # ratios
@@ -103,6 +105,19 @@ for (startX, startY, endX, endY) in boxes:
     endY = int(endY * rH)
     # draw the bounding box on the image
     cv2.rectangle(orig, (startX, startY), (endX, endY), (0, 255, 0), 2)
+    text_imgs = [orig[startY:endY, startX:endX], text_imgs]
 # show the output image
-cv2.imshow("Text Detection", orig)
+#cv2.imshow("Text Detection", orig)
+cv2.imwrite("TestOutput_static.jpg", orig)
+custom_config = r'--oem 3 --psm 6'
+#d = pytesseract.image_to_string(text_imgs[1], config=custom_config)
+d = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
+n_boxes = len(d['text'])
+for i in range(n_boxes):
+    if int(d['conf'][i]) > 60:
+        (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
+        image = cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+#cv2.imshow('img', image)
+cv2.imwrite("TestOutput.jpg", image)
 cv2.waitKey(0)
