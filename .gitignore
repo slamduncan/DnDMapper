@@ -122,3 +122,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+tessdata/
+TesseractLib/
+neural-network-training-master/
+venv_64/
+TestImages/DnDMap.bin
